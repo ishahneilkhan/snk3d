@@ -248,6 +248,14 @@ svg.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:1.7;
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const P=window.PROJECTS||[];
+const apiGet=async u=>{try{const r=await fetch(u,{cache:'no-store'});return r.ok?await r.json():null}catch(e){return null}};
+const getProject=async c=>{
+  const f=P.find(x=>x.code===c);if(f)return f;
+  const j=await apiGet('/api/project?code='+encodeURIComponent(c));
+  if(j&&j.project){P.push(j.project);return j.project}
+  return null;
+};
+const cntP=apiGet('/api/count').then(j=>{window.__cnt=(j&&j.count)|0});
 const app=$('#app');
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -328,7 +336,7 @@ function swap(html,after){
 }
 
 function home(){
-  const n=P.length;
+  const n=Math.max(P.length,window.__cnt|0);
   swap(`<section class="view home">
     <div class="top"><div class="logo rv"><span class="mk"><svg class="i" viewBox="0 0 24 24"><path d="${IC.cube}"/></svg></span><div><b>Shah Neil Khan</b><small>3D&nbsp;&nbsp;STUDIO</small></div></div><span class="ln"></span><span class="mono rv" style="--d:.1s">3D Design Review</span></div>
     <span class="frame l"></span><span class="frame r"></span>
@@ -361,9 +369,9 @@ function home(){
     const inp=$('#cd',v),er=$('#er',v),pill=$('#pill',v);
     if(fine)setTimeout(()=>inp.focus({preventScroll:true}),800);
     inp.oninput=()=>{er.textContent=''};
-    pill.onsubmit=e=>{e.preventDefault();
+    pill.onsubmit=async e=>{e.preventDefault();
       const c=inp.value.trim().toUpperCase();
-      if(c&&P.find(x=>x.code===c)){location.hash=c}
+      if(c&&await getProject(c)){location.hash=c}
       else{er.textContent='কোড মেলেনি, আবার চেষ্টা করুন';pill.classList.remove('shake');void pill.offsetWidth;pill.classList.add('shake');inp.select()}
     };
   });
@@ -468,10 +476,14 @@ function cleanup(){
   home.pm&&removeEventListener('pointermove',home.pm);home.pm=null;
   project.rs&&removeEventListener('resize',project.rs);project.rs=null;
 }
-function render(){
+let rtok=0;
+async function render(){
   cleanup();
+  const t=++rtok;
   const c=decodeURIComponent(location.hash.slice(1)).trim().toUpperCase();
-  const p=c&&P.find(x=>x.code===c);
+  const p=c?await getProject(c):null;
+  if(t!==rtok)return;
+  if(!p){await Promise.race([cntP,new Promise(r=>setTimeout(r,1200))]);if(t!==rtok)return}
   p?project(p):home();
 }
 addEventListener('hashchange',render);
