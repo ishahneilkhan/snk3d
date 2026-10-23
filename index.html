@@ -1,16 +1,380 @@
 <!DOCTYPE html>
-<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shah Neil Khan — 3D Design Review</title><link rel="stylesheet" href="style.css"></head>
-<body><main><div id="app"></div></main>
-<script src="data.js"></script><script src="common.js"></script>
-<script>
-const app=document.getElementById('app'),P=window.PROJECTS||[];
-function render(){const c=location.hash.slice(1).toUpperCase();const p=c&&P.find(x=>x.code===c);p?renderProject(app,p):home()}
-function home(){
-  app.innerHTML=`<div class="center box"><div class="mono">3D Design Review</div><h1>Shah Neil Khan</h1><p class="mono" style="margin:0 0 16px">3D Designer · Interior</p>
-  <label class="mono" for="cd">প্রজেক্ট কোড</label><input id="cd" autocomplete="off" placeholder="যেমন A7K2"><p class="err" id="er"></p><button class="pri" id="go">খুলুন</button></div>`;
-  const go=()=>{const v=document.getElementById('cd').value.trim().toUpperCase();if(P.find(x=>x.code===v)){history.replaceState(null,'','#'+v);render()}else document.getElementById('er').textContent='কোড মেলেনি'};
-  document.getElementById('go').onclick=go;document.getElementById('cd').onkeydown=e=>{if(e.key==='Enter')go()};
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shah Neil Khan — 3D Design Review</title>
+<meta name="description" content="Shah Neil Khan · 3D Designer · Interior. Private design review portal.">
+<meta name="theme-color" content="#09080a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Hind+Siliguri:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09080a; --ink:#f3ecdc; --mute:#a89f8c; --dim:#6f6757;
+  --gold:#d9b45a; --gold-hi:#f6e3a6; --gold-lo:#9a7424;
+  --line:rgba(217,180,90,.22); --line-soft:rgba(255,255,255,.07);
+  --glass:rgba(22,20,24,.55);
+  --serif:"Cormorant Garamond",Georgia,serif;
+  --sans:"Manrope","Hind Siliguri",system-ui,sans-serif;
+  --bn:"Hind Siliguri","Manrope",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  color-scheme:dark;
 }
-addEventListener('hashchange',render);render();
-</script></body></html>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--bn);line-height:1.6;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(900px 600px at 80% -10%,rgba(217,180,90,.14),transparent 60%),
+  radial-gradient(700px 500px at 0% 100%,rgba(120,80,30,.16),transparent 60%),var(--bg)}
+body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block}
+#glow{position:fixed;left:0;top:0;width:520px;height:520px;margin:-260px 0 0 -260px;z-index:0;pointer-events:none;border-radius:50%;
+  background:radial-gradient(circle,rgba(217,180,90,.10),transparent 65%);opacity:0;transition:opacity .4s;will-change:transform}
+::selection{background:var(--gold);color:#16120a}
+a{color:inherit}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+.mono{font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+.mono.bn{font-family:var(--bn);letter-spacing:.02em;text-transform:none;font-size:.85rem}
+.gold{background:linear-gradient(100deg,var(--gold-hi) 0%,var(--gold) 45%,var(--gold-lo) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--gold)}
+
+/* ---------- page shell + transitions ---------- */
+#app{position:relative;z-index:1;min-height:100vh}
+.view{animation:viewIn .9s var(--ease) both}
+.view.out{animation:viewOut .35s ease both}
+@keyframes viewIn{from{opacity:0;transform:translateY(24px) scale(.985);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes viewOut{to{opacity:0;transform:translateY(-14px) scale(.99);filter:blur(8px)}}
+
+/* ---------- HOME ---------- */
+.home{min-height:100vh;display:grid;place-items:center;padding:40px 18px;perspective:1400px}
+.home-inner{width:100%;max-width:520px;text-align:center}
+.badge{display:inline-flex;align-items:center;gap:10px;padding:7px 16px;border:1px solid var(--line);border-radius:999px;background:rgba(217,180,90,.06);backdrop-filter:blur(8px)}
+.badge i{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);animation:pulse 2.4s infinite}
+@keyframes pulse{50%{opacity:.35;transform:scale(.7)}}
+.hero-name{font-family:var(--serif);font-weight:500;font-size:clamp(3.2rem,13vw,6rem);line-height:.95;letter-spacing:-.01em;margin:22px 0 10px}
+.hero-name span{display:block}
+.hero-name .l2{font-style:italic;font-weight:400;padding-left:.6em}
+.role{margin:0 0 34px}
+.role b{color:var(--gold);font-weight:500}
+
+.card{position:relative;text-align:left;padding:28px 26px 26px;border-radius:24px;background:var(--glass);
+  border:1px solid var(--line-soft);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+  box-shadow:0 40px 80px -20px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.08);
+  transform-style:preserve-3d;transition:transform .5s var(--ease),box-shadow .5s;will-change:transform}
+.card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(246,227,166,.55),transparent 35%,transparent 65%,rgba(217,180,90,.4));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.card .shine{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
+  background:radial-gradient(400px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.09),transparent 55%)}
+.card:hover .shine{opacity:1}
+.card>*{transform:translateZ(18px)}
+.card label{display:block;margin-bottom:10px}
+.field{position:relative}
+.field input{width:100%;background:rgba(0,0,0,.45);border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;
+  font-family:var(--mono);font-size:1.35rem;letter-spacing:.45em;text-transform:uppercase;text-align:center;outline:none;
+  transition:border-color .3s,box-shadow .3s,background .3s}
+.field input::placeholder{letter-spacing:.06em;font-size:.95rem;color:var(--dim);text-transform:none;font-family:var(--bn)}
+.field input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(217,180,90,.12),0 0 40px rgba(217,180,90,.12);background:rgba(0,0,0,.6)}
+.field.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.err{min-height:1.4em;margin:10px 0 6px;color:#ef8a80;font-size:.9rem;text-align:center}
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;border-radius:14px;
+  padding:15px 26px;border:0;font-weight:600;letter-spacing:.04em;transition:transform .35s var(--ease),box-shadow .35s}
+.btn.pri{width:100%;color:#1a1408;background:linear-gradient(120deg,var(--gold-hi),var(--gold) 50%,var(--gold-lo));
+  box-shadow:0 14px 34px -10px rgba(217,180,90,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn.pri::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;transform:skewX(-20deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transition:left .8s var(--ease)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 20px 44px -10px rgba(217,180,90,.7),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn.pri:hover::after{left:140%}
+.btn.pri:active{transform:translateY(0) scale(.99)}
+.btn.ghost{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink);padding:10px 18px;border-radius:999px;font-size:.85rem;backdrop-filter:blur(10px)}
+.btn.ghost:hover{background:rgba(217,180,90,.12);border-color:var(--gold);transform:translateY(-1px)}
+.foot-note{margin-top:26px}
+
+/* ---------- PROJECT ---------- */
+.proj{max-width:1240px;margin:0 auto;padding:0 20px 70px}
+.nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;margin-bottom:6px}
+.nav::before{content:"";position:absolute;inset:0 -100vw;z-index:-1;background:linear-gradient(var(--bg),rgba(9,8,10,.0));backdrop-filter:blur(14px);-webkit-mask:linear-gradient(#000 60%,transparent);mask:linear-gradient(#000 60%,transparent)}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-size:1.35rem;font-weight:500;text-decoration:none}
+.brand .mk{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--line);background:rgba(217,180,90,.07);font-size:1rem;color:var(--gold)}
+
+.hero{padding:clamp(34px,8vw,90px) 0 clamp(26px,5vw,50px);position:relative}
+.hero .kick{display:flex;align-items:center;gap:14px}
+.hero .kick::after{content:"";height:1px;width:80px;background:linear-gradient(90deg,var(--gold),transparent)}
+.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.6rem,9vw,6.6rem);line-height:1;letter-spacing:-.015em;margin:18px 0 0;word-break:break-word;max-width:14ch}
+.hero h1 em{font-style:italic;font-weight:400}
+.hero .sub{margin-top:18px;color:var(--mute);max-width:46ch;font-size:1rem}
+
+.tb{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:10px 0 40px;perspective:1000px}
+@media(max-width:760px){.tb{grid-template-columns:repeat(2,1fr)}}
+.tb .cell{position:relative;padding:18px 20px;border-radius:18px;background:var(--glass);border:1px solid var(--line-soft);backdrop-filter:blur(16px);
+  transition:transform .5s var(--ease),border-color .4s,box-shadow .4s;transform-style:preserve-3d}
+.tb .cell:hover{transform:translateY(-6px) rotateX(6deg);border-color:var(--line);box-shadow:0 24px 40px -18px rgba(0,0,0,.8),0 0 30px -10px rgba(217,180,90,.3)}
+.tb .cell b{display:block;margin-top:6px;font-family:var(--serif);font-size:1.5rem;font-weight:500;line-height:1.2;overflow-wrap:anywhere}
+.tb .cell .mono{display:block}
+
+.stage{display:grid;grid-template-columns:1fr;gap:22px;align-items:start}
+@media(min-width:900px){.stage{grid-template-columns:1fr 1.25fr}}
+.panel{position:relative;border-radius:26px;background:var(--glass);border:1px solid var(--line-soft);overflow:hidden;
+  box-shadow:0 50px 90px -30px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(18px);
+  transition:transform .6s var(--ease),border-color .4s;transform-style:preserve-3d;will-change:transform}
+.panel:hover{border-color:var(--line)}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line-soft)}
+.panel-h .t{display:flex;align-items:center;gap:12px}
+.panel-h .n{font-family:var(--serif);font-style:italic;font-size:1.5rem;color:var(--gold);line-height:1}
+.media{position:relative;height:min(68vh,620px);min-height:340px;background:#0b0e12}
+.media.paper{background:#f4f1ea;cursor:zoom-in;display:grid;place-items:center;overflow:hidden}
+.media.paper img{max-width:100%;max-height:100%;object-fit:contain;display:block;transition:transform .8s var(--ease)}
+.media.paper:hover img{transform:scale(1.03)}
+.media iframe{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity 1s}
+.media iframe.ready{opacity:1}
+.loader{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 50%,#16202b,#0b0e12);transition:opacity .6s;pointer-events:none}
+.loader.gone{opacity:0}
+.cube{width:46px;height:46px;position:relative;transform-style:preserve-3d;animation:spin 3.2s linear infinite}
+.cube i{position:absolute;inset:0;border:1px solid var(--gold);background:rgba(217,180,90,.08)}
+.cube i:nth-child(1){transform:translateZ(23px)}.cube i:nth-child(2){transform:rotateY(180deg) translateZ(23px)}
+.cube i:nth-child(3){transform:rotateY(90deg) translateZ(23px)}.cube i:nth-child(4){transform:rotateY(-90deg) translateZ(23px)}
+.cube i:nth-child(5){transform:rotateX(90deg) translateZ(23px)}.cube i:nth-child(6){transform:rotateX(-90deg) translateZ(23px)}
+@keyframes spin{from{transform:rotateX(-25deg) rotateY(0)}to{transform:rotateX(-25deg) rotateY(360deg)}}
+.loader p{position:absolute;bottom:18%;margin:0}
+.hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+  background:rgba(9,8,10,.65);border:1px solid var(--line);backdrop-filter:blur(10px);pointer-events:none;transition:opacity .6s;white-space:nowrap}
+.empty{padding:60px 20px;text-align:center}
+.sign{margin-top:46px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:22px;border-top:1px solid var(--line-soft)}
+
+/* ---------- overlays ---------- */
+.ov{position:fixed;inset:0;z-index:100;background:rgba(5,4,6,.92);backdrop-filter:blur(18px);display:none;opacity:0;transition:opacity .35s}
+.ov.show{display:block}.ov.on{opacity:1}
+.ov .x{position:absolute;top:max(16px,env(safe-area-inset-top));right:16px;z-index:3}
+#lb{overflow:auto;cursor:zoom-in}
+#lb.z{cursor:zoom-out}
+#lb img{display:block;margin:0 auto;max-width:94vw;max-height:92vh;margin-top:4vh;border-radius:10px;box-shadow:0 40px 100px rgba(0,0,0,.8);background:#fff;transition:transform .5s var(--ease)}
+#lb.z img{max-width:none;max-height:none;width:200vw;margin-top:0;border-radius:0;transform:none}
+#xp iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(34px);filter:blur(6px);transition:opacity 1s var(--ease),transform 1s var(--ease),filter 1s var(--ease);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none;filter:none}
+
+@media(max-width:560px){.card{padding:22px 18px}.hero-name .l2{padding-left:.3em}.media{height:56vh}.nav .mono.hide-s{display:none}}
+@media(hover:none){#glow{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}.rv{opacity:1;transform:none;filter:none}}
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div id="glow" aria-hidden="true"></div>
+<main id="app"></main>
+
+<div class="ov" id="lb" role="dialog" aria-label="Hand drawing">
+  <button class="btn ghost x" data-close>✕ বন্ধ করুন</button><img alt="Hand drawing">
+</div>
+<div class="ov" id="xp" role="dialog" aria-label="3D model fullscreen">
+  <button class="btn ghost x" data-close>✕ বন্ধ করুন</button>
+</div>
+
+<script src="data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" onerror="window.__noThree=1"></script>
+<script>
+/* ================= helpers ================= */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const P=window.PROJECTS||[];
+const app=$('#app');
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+function frameDoc(code){
+  const safe=String(code||'').replace(/<\/script/gi,'<\\/script');
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;overflow:hidden;background:#0b1620}canvas{display:block;width:100%;height:100%}</style></head><body><canvas id="cv"></canvas><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"><\/script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"><\/script><script>const canvas=document.getElementById('cv'),width=innerWidth,height=innerHeight,OrbitControls=THREE.OrbitControls;try{
+${safe}
+}catch(e){document.body.insertAdjacentHTML('beforeend','<p style="color:#f88;font:14px sans-serif;padding:12px">Error: '+e.message+'</p>')}<\/script></body></html>`;
+}
+
+/* ================= 3D background ================= */
+const Bg=(()=>{ try{ return (()=>{
+  const cv=$('#bg');
+  if(!window.THREE||window.__noThree)return{boost(){}};
+  let renderer;try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true,powerPreference:'low-power'})}catch(e){return{boost(){}}}
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));
+  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,1,.1,100);cam.position.z=14;
+  const gold=0xd9b45a,mat=(o)=>new THREE.MeshBasicMaterial(Object.assign({color:gold,wireframe:true,transparent:true,opacity:.35},o||{}));
+  const root=new THREE.Group();scene.add(root);
+
+  // hero wireframe solids
+  const ico=new THREE.Mesh(new THREE.IcosahedronGeometry(3.6,1),mat({opacity:.22}));ico.position.set(4.2,.6,-3);root.add(ico);
+  const core=new THREE.Mesh(new THREE.OctahedronGeometry(1.5,0),mat({opacity:.5}));core.position.copy(ico.position);root.add(core);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(5.2,.012,8,160),mat({opacity:.45}));ring.position.copy(ico.position);ring.rotation.x=1.2;root.add(ring);
+  const ring2=ring.clone();ring2.scale.setScalar(.72);ring2.rotation.set(.4,.8,0);root.add(ring2);
+
+  // floating isometric cubes (interior / architectural feel)
+  const cubes=[],box=new THREE.BoxGeometry(1,1,1),edges=new THREE.EdgesGeometry(box);
+  for(let i=0;i<16;i++){
+    const m=new THREE.LineSegments(edges,new THREE.LineBasicMaterial({color:gold,transparent:true,opacity:.10+Math.random()*.35}));
+    const s=.35+Math.random()*1.1;m.scale.setScalar(s);
+    m.position.set((Math.random()-.5)*26,(Math.random()-.5)*15,-8+Math.random()*8);
+    m.userData={r:(Math.random()-.5)*.006,y:Math.random()*6,sp:.15+Math.random()*.3,by:m.position.y};
+    cubes.push(m);root.add(m);
+  }
+  // dust particles
+  const N=360,pos=new Float32Array(N*3);
+  for(let i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*34;pos[i*3+1]=(Math.random()-.5)*22;pos[i*3+2]=-12+Math.random()*20}
+  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xf6e3a6,size:.045,transparent:true,opacity:.7,depthWrite:false}));root.add(pts);
+
+  let mx=0,my=0,tx=0,ty=0,boost=0,t0=performance.now(),visible=true,raf;
+  addEventListener('pointermove',e=>{tx=e.clientX/innerWidth-.5;ty=e.clientY/innerHeight-.5},{passive:true});
+  function size(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;
+    // shift hero solids off-screen-centre on narrow screens
+    const narrow=w<760;ico.position.x=core.position.x=ring.position.x=ring2.position.x=narrow?0:4.2;
+    ico.position.y=core.position.y=ring.position.y=ring2.position.y=narrow?3.2:.6;cam.updateProjectionMatrix()}
+  addEventListener('resize',size);size();
+  document.addEventListener('visibilitychange',()=>{visible=!document.hidden;if(visible)loop()});
+  function frame(){
+    const t=(performance.now()-t0)/1000;
+    mx+=(tx-mx)*.04;my+=(ty-my)*.04;boost*=.94;
+    root.rotation.y=mx*.35;root.rotation.x=my*.2;
+    const sp=reduce?0:1;
+    ico.rotation.y=t*.12*sp+boost;ico.rotation.x=t*.07*sp;
+    core.rotation.y=-t*.4*sp-boost*2;core.rotation.x=t*.25*sp;
+    ring.rotation.z=t*.1*sp;ring2.rotation.y=t*.16*sp;
+    cubes.forEach(c=>{c.rotation.x+=c.userData.r*sp;c.rotation.y+=c.userData.r*1.4*sp;c.position.y=c.userData.by+Math.sin(t*c.userData.sp+c.userData.y)*.5*sp});
+    pts.rotation.y=t*.01*sp;
+    // scroll parallax
+    root.position.y=scrollY*.0016;
+    renderer.render(scene,cam);
+  }
+  function loop(){if(!visible)return;frame();raf=requestAnimationFrame(loop)}
+  loop();
+  return{boost(){boost=1.2}};
+})() }catch(e){ console.warn('bg off',e); return{boost(){}} } })();
+
+/* cursor glow */
+(()=>{if(!fine)return;const g=$('#glow');let x=0,y=0,cx=0,cy=0;
+  addEventListener('pointermove',e=>{x=e.clientX;y=e.clientY;g.style.opacity=1},{passive:true});
+  (function f(){cx+=(x-cx)*.12;cy+=(y-cy)*.12;g.style.transform=`translate(${cx}px,${cy}px)`;requestAnimationFrame(f)})();
+})();
+
+/* 3D tilt on cards/panels */
+function tilt(el,max=7){
+  if(!fine||reduce)return;
+  el.addEventListener('pointermove',e=>{
+    const r=el.getBoundingClientRect(),px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;
+    el.style.transform=`perspective(1100px) rotateY(${(px-.5)*max}deg) rotateX(${-(py-.5)*max}deg) translateY(-3px)`;
+    el.style.setProperty('--mx',px*100+'%');el.style.setProperty('--my',py*100+'%');
+  });
+  el.addEventListener('pointerleave',()=>{el.style.transform=''});
+}
+/* scroll reveal */
+function reveal(root){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+  root.querySelectorAll('.rv').forEach((el,i)=>io.observe(el));
+}
+
+/* ================= views ================= */
+function swap(html,after){
+  const old=app.firstElementChild;
+  const go=()=>{app.innerHTML=html;scrollTo(0,0);after&&after(app.firstElementChild)};
+  if(old&&!reduce){old.classList.add('out');setTimeout(go,330)}else go();
+}
+
+function home(){
+  swap(`<section class="view home"><div class="home-inner">
+    <div class="rv badge mono"><i></i>3D Design Review</div>
+    <h1 class="rv hero-name gold" style="--d:.08s"><span>Shah Neil</span><span class="l2">Khan</span></h1>
+    <p class="rv role mono" style="--d:.16s">3D Designer <b>·</b> Interior</p>
+    <div class="rv card" id="card" style="--d:.24s"><div class="shine"></div>
+      <label class="mono bn" for="cd">প্রজেক্ট কোড</label>
+      <div class="field" id="fld"><input id="cd" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" placeholder="যেমন A7K2"></div>
+      <p class="err" id="er" role="alert"></p>
+      <button class="btn pri" id="go"><span>খুলুন</span><span aria-hidden="true">→</span></button>
+    </div>
+    <p class="rv foot-note mono" style="--d:.34s">Private client portal</p>
+  </div></section>`,v=>{
+    reveal(v);tilt($('#card',v),6);
+    const inp=$('#cd',v),er=$('#er',v),fld=$('#fld',v);
+    if(fine)setTimeout(()=>inp.focus({preventScroll:true}),700);
+    const go=()=>{
+      const c=inp.value.trim().toUpperCase();
+      if(c&&P.find(x=>x.code===c)){er.textContent='';Bg.boost();location.hash=c}
+      else{er.textContent='কোড মেলেনি, আবার চেষ্টা করুন';fld.classList.remove('shake');void fld.offsetWidth;fld.classList.add('shake');inp.select()}
+    };
+    $('#go',v).onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};inp.oninput=()=>{er.textContent=''};
+  });
+}
+
+function project(p){
+  const title=esc(p.title||'Untitled');
+  const words=title.split(' ');const last=words.length>1?words.pop():'';
+  const h=last?`${words.join(' ')} <em class="gold">${last}</em>`:`<em class="gold">${title}</em>`;
+  swap(`<div class="view proj">
+    <nav class="nav"><a class="brand" href="#" id="back" aria-label="Back to code entry"><span class="mk">S</span><span>Shah Neil Khan</span></a>
+      <button class="btn ghost" id="exit"><span class="hide-s">অন্য কোড</span> ↩</button></nav>
+    <header class="hero">
+      <div class="rv kick mono">Design Review · Rev A</div>
+      <h1 class="rv" style="--d:.08s">${h}</h1>
+      <p class="rv sub" style="--d:.16s">নিচে আপনার প্রজেক্টের হ্যান্ড ড্রয়িং ও ইন্টারেক্টিভ থ্রিডি মডেল। ড্র্যাগ করে ঘুরিয়ে দেখুন।</p>
+    </header>
+    <section class="tb">
+      <div class="rv cell" style="--d:.05s"><span class="mono">Client</span><b>${esc(p.client||'—')}</b></div>
+      <div class="rv cell" style="--d:.12s"><span class="mono">Dwg No</span><b>${esc(p.code)}</b></div>
+      <div class="rv cell" style="--d:.19s"><span class="mono">Date</span><b>${esc(p.date||'—')}</b></div>
+      <div class="rv cell" style="--d:.26s"><span class="mono">Revision</span><b>A</b></div>
+    </section>
+    <section class="stage">
+      <article class="rv panel" id="p1">
+        <div class="panel-h"><div class="t"><span class="n">01</span><span class="mono">Hand Drawing</span></div>
+          ${p.img?'<span class="mono">Tap to zoom</span>':''}</div>
+        ${p.img?`<div class="media paper" id="paper" role="button" tabindex="0" aria-label="Zoom drawing"><img src="${p.img}" alt="Hand drawing"></div>`:'<div class="empty mono">ছবি নেই</div>'}
+      </article>
+      <article class="rv panel" id="p2" style="--d:.12s">
+        <div class="panel-h"><div class="t"><span class="n">02</span><span class="mono">3D Model</span></div>
+          <button class="btn ghost" id="ex">⤢ Full screen</button></div>
+        <div class="media"><iframe id="fr" sandbox="allow-scripts" title="3D model"></iframe>
+          <div class="loader" id="ld"><div class="cube"><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="mono">Loading model</p></div>
+          <div class="hint mono" id="hint">⟲ Drag to rotate · Scroll to zoom</div></div>
+      </article>
+    </section>
+    <footer class="rv sign"><span class="mono">Prepared by Shah Neil Khan</span><span class="mono">3D Designer · Interior</span></footer>
+  </div>`,v=>{
+    reveal(v);
+    const fr=$('#fr',v),ld=$('#ld',v),hint=$('#hint',v);
+    fr.onload=()=>{fr.classList.add('ready');ld.classList.add('gone')};
+    fr.srcdoc=frameDoc(p.src);
+    setTimeout(()=>{ld.classList.add('gone');fr.classList.add('ready')},9000);
+    setTimeout(()=>{hint.style.opacity=0},9000);
+    const goHome=e=>{e&&e.preventDefault();history.replaceState(null,'',location.pathname+location.search);render()};
+    $('#back',v).onclick=goHome;$('#exit',v).onclick=goHome;
+    tilt($('#p1',v),3);tilt($('#p2',v),2.2);
+    // lightbox
+    const paper=$('#paper',v);
+    if(paper){const open=()=>openLB(p.img);paper.onclick=open;paper.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}}}
+    // fullscreen 3D (re-created so the model gets the real viewport size)
+    $('#ex',v).onclick=()=>openXP(p.src);
+  });
+}
+
+/* overlays */
+function showOv(el){el.classList.add('show');requestAnimationFrame(()=>el.classList.add('on'));document.body.style.overflow='hidden'}
+function hideOv(el){el.classList.remove('on');setTimeout(()=>{el.classList.remove('show');el.classList.remove('z');const f=$('iframe',el);f&&f.remove()},350);document.body.style.overflow=''}
+function openLB(src){const lb=$('#lb');$('img',lb).src=src;lb.scrollTop=0;showOv(lb)}
+function openXP(code){const xp=$('#xp'),f=document.createElement('iframe');f.setAttribute('sandbox','allow-scripts');f.title='3D model';showOv(xp);xp.appendChild(f);setTimeout(()=>{f.srcdoc=frameDoc(code)},380)}
+$('#lb').addEventListener('click',e=>{if(e.target.closest('[data-close]'))return hideOv($('#lb'));$('#lb').classList.toggle('z')});
+$('#xp').addEventListener('click',e=>{if(e.target.closest('[data-close]'))hideOv($('#xp'))});
+addEventListener('keydown',e=>{if(e.key==='Escape'){['#lb','#xp'].forEach(s=>{const o=$(s);o.classList.contains('show')&&hideOv(o)})}});
+
+/* ================= router ================= */
+function render(){
+  const c=decodeURIComponent(location.hash.slice(1)).trim().toUpperCase();
+  const p=c&&P.find(x=>x.code===c);
+  p?project(p):home();
+}
+addEventListener('hashchange',render);
+render();
+</script>
+</body>
+</html>
